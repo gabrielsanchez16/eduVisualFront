@@ -60,7 +60,7 @@ Además, incluye una **guía de uso interactiva** que explica cómo aprovechar a
 4. Crea un archivo `.env` (basado en `.env.example`) con la URL del backend:
 
    ```bash
-   VITE_API_URL=http://localhost:5000
+   VITE_API_URL=http://localhost:8000
    ```
 
 5. Ejecuta el servidor de desarrollo:
