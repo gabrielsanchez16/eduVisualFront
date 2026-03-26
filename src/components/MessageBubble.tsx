@@ -1,6 +1,8 @@
 import React from 'react';
-import { Bot, User } from 'lucide-react';
+import { Bot, ClipboardPlus, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
+import { Button } from './ui/button';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -14,11 +16,22 @@ interface MessageBubbleProps {
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const isUser = message.role === 'user';
+  const { user } = useAuth(); // 🔥 NUEVO
+
+  const handleAssign = () => {
+    window.dispatchEvent(
+      new CustomEvent("openAssignTask", {
+        detail: {
+          content: message.content
+        }
+      })
+    );
+  };
 
   return (
     <div
       className={cn(
-        'flex gap-3 animate-fade-in',
+        'flex gap-3 animate-fade-in group',
         isUser ? 'flex-row-reverse' : 'flex-row'
       )}
     >
@@ -41,14 +54,29 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
           isUser ? 'items-end' : 'items-start'
         )}
       >
+        
         <div
           className={cn(
-            'rounded-2xl px-4 py-3 shadow-soft',
+            'rounded-2xl px-4 py-3 shadow-soft relative',
             isUser
               ? 'bg-primary text-primary-foreground rounded-tr-sm'
               : 'bg-card text-card-foreground rounded-tl-sm border border-border'
           )}
         >
+           {/* 🔥 BOTÓN FLOTANTE */}
+        {user?.role === "teacher" && message.role !== "user" && (
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
+            <Button
+              size="sm"
+              variant="secondary"
+              className="shadow-md flex items-center gap-1"
+              onClick={handleAssign}
+            >
+              <ClipboardPlus className="w-3 h-3" />
+              Tarea
+            </Button>
+          </div>
+        )}
           <p className="whitespace-pre-wrap text-sm leading-relaxed">
             {message.content}
           </p>

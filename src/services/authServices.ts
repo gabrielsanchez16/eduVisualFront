@@ -1,6 +1,6 @@
 import { AuthResponse } from "../types/auth";
 
-const API_URL = "http://localhost:8000/functions/v1";
+const API_URL = import.meta.env.VITE_SUPABASE_URL;
 
 export const loginUser = async (
   email: string,

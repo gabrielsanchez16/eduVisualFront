@@ -1,15 +1,21 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sparkles, BookOpen, Menu, X } from "lucide-react";
+import { Sparkles, BookOpen, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { Menu } from "lucide-react";
+import { on } from "events";
 
-const Header = () => {
+interface Props {
+  onMenuClick?: () => void;
+  onModalClick?: () => void;
+  onTasksClick?: () => void;
+}
+
+const Header = ({ onMenuClick, onModalClick, onTasksClick }: Props) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const location = useLocation();
   const { user, logout } = useAuth();
-
-  console.log(user)
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -50,11 +56,22 @@ const Header = () => {
             </Button>
             {user?.role === "teacher" && (
               <Button
-              variant={isActive("/crear-tarea") ? "default" : "ghost"}
-              asChild
-              className="gap-2"
-            >
-                <Link to="/crear-tarea">Crear tarea</Link>
+                variant={isActive("/crear-tarea") ? "default" : "ghost"}
+                asChild
+                className="gap-2"
+                onClick={onModalClick}
+              >
+                <Link to="#">Estudiantes</Link>
+              </Button>
+            )}
+            {user?.role === "student" && (
+              <Button
+                variant={isActive("/mis-tareas") ? "default" : "ghost"}
+                asChild
+                className="gap-2"
+                onClick={onTasksClick}
+              >
+                <Link to="#">Mis tareas</Link>
               </Button>
             )}
           </nav>
@@ -75,6 +92,9 @@ const Header = () => {
                   {user.role === "teacher"
                     ? "👨‍🏫 Profesor"
                     : "🎓 Estudiante"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  id:{user.id}
                 </p>
               </div>
 
@@ -130,14 +150,40 @@ const Header = () => {
               </Link>
 
             </Button>
+            <Button
+              variant={isActive("/conversaciones") ? "default" : "ghost"}
+              asChild
+              className="justify-start flex gap-2"
+              onClick={() => {
+                onMenuClick()
+                setIsMenuOpen(false)
+              }}
+            >
+              <Link to="#">
+                <BookOpen className="w-4 h-4" />
+                Conversaciones
+              </Link>
+
+
+            </Button>
             {user?.role === "teacher" && (
               <Button
                 variant={isActive("/crear-tarea") ? "default" : "ghost"}
                 asChild
                 className="justify-start gap-2"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => onModalClick()}
               >
-                <Link to="/crear-tarea">Crear tarea</Link>
+                <Link to="#">Estudiantes</Link>
+              </Button>
+            )}
+            {user?.role === "student" && (
+              <Button
+                variant={isActive("/mis-tareas") ? "default" : "ghost"}
+                asChild
+                className="gap-2"
+                onClick={onTasksClick}
+              >
+                <Link to="#">Mis tareas</Link>
               </Button>
             )}
           </nav>
@@ -157,6 +203,9 @@ const Header = () => {
                     {user.role === "teacher"
                       ? "👨‍🏫 Profesor"
                       : "🎓 Estudiante"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    id:{user.id}
                   </p>
                 </div>
               </div>

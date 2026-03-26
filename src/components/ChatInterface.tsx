@@ -4,6 +4,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Send, Image as ImageIcon, Sparkles, Loader2 } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
+import AssignTaskModal from './AssingTaskModal';
+interface Props {
+  conversationId: number | null;
+  setConversationId: (id: number) => void;
+}
 
 interface Message {
   role: 'user' | 'assistant';
@@ -11,19 +17,21 @@ interface Message {
   imageUrl?: string;
 }
 
-const ChatInterface = () => {
+const ChatInterface = ({ conversationId, setConversationId }: Props) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
       content: '¡Hola! 👋 Soy EduVisual AI, tu asistente de aprendizaje. Puedo ayudarte a entender cualquier tema usando explicaciones claras e imágenes educativas. ¿Qué te gustaría aprender hoy?'
     }
   ]);
+  const { token } = useAuth();
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [generateImage, setGenerateImage] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
+
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -34,18 +42,19 @@ const ChatInterface = () => {
   }, [messages]);
 
   const streamChat = async (userMessage: string) => {
-    const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
+    const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/chat`;
 
     try {
       const resp = await fetch(CHAT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           messages: [...messages, { role: 'user', content: userMessage }],
-          generateImage: generateImage
+          generateImage: generateImage,
+          conversationId: conversationId // 🔥 clave
         }),
       });
 
@@ -75,6 +84,9 @@ const ChatInterface = () => {
       if (contentType?.includes('application/json')) {
         // Non-streaming response (when generating images)
         const data = await resp.json();
+        if (data.conversationId && !conversationId) {
+          setConversationId(data.conversationId);
+        }
         const content = data.data.content;
         const images = data.data.imageUrl;
 
@@ -122,7 +134,10 @@ const ChatInterface = () => {
           try {
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-
+            // 🔥 guardar conversationId si viene
+            if (parsed.conversationId && !conversationId) {
+              setConversationId(parsed.conversationId);
+            }
             if (content) {
               assistantContent += content;
               setMessages(prev => {
@@ -195,13 +210,36 @@ const ChatInterface = () => {
     }
   };
 
+  useEffect(() => {
+    if (!conversationId) {
+      setMessages([]);
+      return;
+    }
+
+    const fetchMessages = async () => {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/chat/messages/${conversationId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+      setMessages(data);
+    };
+
+    fetchMessages();
+  }, [conversationId]);
+
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full w-full">
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message, index) => {
           console.log("message:", message);
-          return(
+          return (
             <MessageBubble key={index} message={message} />
           )
         })}
@@ -252,6 +290,7 @@ const ChatInterface = () => {
           EduVisual AI puede cometer errores. Verifica la información importante.
         </p>
       </div>
+      <AssignTaskModal />
     </div>
   );
 };

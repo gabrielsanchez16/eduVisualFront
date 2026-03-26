@@ -14,58 +14,59 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from './routes/PublicRoutes';
+import StudentTasks from "./components/StudentTaks";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
 
-      <BrowserRouter>
-        <Routes>
+        <BrowserRouter>
+          <Routes>
 
-          {/* 🌐 Públicas */}
-          <Route
-            path="/login"
-            element={
-              <PublicRoute>
-                <Login />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              <PublicRoute>
-                <Register />
-              </PublicRoute>
-            }
-          />
+            {/* 🌐 Públicas */}
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <PublicRoute>
+                  <Register />
+                </PublicRoute>
+              }
+            />
 
-          {/* 🔐 Protegidas */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Index />
-              </ProtectedRoute>
-            }
-          />
+            {/* 🔐 Protegidas */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/guia-prompts"
-            element={
-              <ProtectedRoute>
-                <PromptsGuide />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/guia-prompts"
+              element={
+                <ProtectedRoute>
+                  <PromptsGuide />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* 👨‍🏫 SOLO PROFESOR (ejemplo futuro) */}
-          {/*
+            {/* 👨‍🏫 SOLO PROFESOR (ejemplo futuro) */}
+            {/*
           <Route
             path="/crear-tarea"
             element={
@@ -76,24 +77,24 @@ const App = () => (
           />
           */}
 
-          {/* 👨‍🎓 SOLO ESTUDIANTE */}
-          {/*
-          <Route
-            path="/mis-tareas"
-            element={
-              <ProtectedRoute role="student">
-                <MyTasks />
-              </ProtectedRoute>
-            }
-          />
-          */}
+            {/* 👨‍🎓 SOLO ESTUDIANTE */}
 
-          {/* 404 */}
-          <Route path="*" element={<NotFound />} />
+            <Route
+              path="/mis-tareas"
+              element={
+                <ProtectedRoute role="student">
+                  <StudentTasks />
+                </ProtectedRoute>
+              }
+            />
 
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+
+            {/* 404 */}
+            <Route path="*" element={<NotFound />} />
+
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
