@@ -14,10 +14,8 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="container flex h-16 items-center justify-between px-4">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 hover-scale">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center shadow-elegant">
-            <Sparkles className="w-6 h-6 text-white" />
-          </div>
+        <Link to="/" className="flex items-center gap-1 hover-scale">
+          <img src="/logo.png" className=' w-52' alt="" />
           <div className="hidden sm:block">
             <h1 className="text-xl font-bold gradient-text">EduVisual AI</h1>
             <p className="text-xs text-muted-foreground">Aprende con imágenes</p>
